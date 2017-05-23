@@ -239,9 +239,7 @@
             "Tags":[  
                {  
                   "Key":"Name",
-                  "Value":{  
-                     "Join":"TagValue1"
-                  }
+                  "Value":"VPC-public-route"  
                },
                {  
                   "Key":"Project",
@@ -304,6 +302,10 @@
                "Ref":"VPC"
             },
             "Tags":[  
+               {  
+                  "Key":"Name",
+                  "Value":"PublicNetworkACL"
+               },
                {  
                   "Key":"Project",
                   "Value":{  
@@ -421,6 +423,10 @@
             },
             "Tags":[  
                {  
+                  "Key":"Name",
+                  "Value":"VPC-private-route"  
+               },
+               {  
                   "Key":"Project",
                   "Value":{  
                      "Ref":"TagValue1"
@@ -480,6 +486,10 @@
                "Ref":"VPC"
             },
             "Tags":[  
+               {  
+                  "Key":"Name",
+                  "Value":"PrivateNetworkACL"
+               },
                {  
                   "Key":"Project",
                   "Value":{  
