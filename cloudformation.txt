@@ -10,7 +10,8 @@ git remote add origin https://github.com/jchirayath/aws.git
 git push -u origin master
 
 # Adding Files to GIT
-git push *
+git add  *
 git commit -m "update"
 git push origin master
 
+# 
