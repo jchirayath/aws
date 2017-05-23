@@ -1,0 +1,11 @@
+# Reference
+https://ig.nore.me/2014/08/the-first-babysteps-with-cloudformation/
+
+#Git Repository
+echo "# aws" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin https://github.com/jchirayath/aws.git
+git push -u origin master
+

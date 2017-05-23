@@ -1,0 +1,69 @@
+# Template which will create VPC, 2Public Subnet, 2Private Subnet and NAT Gateway.
+{  
+   "AWSTemplateFormatVersion":"2010-09-09",
+   "Description":"This Template will create VPC, Subnet and resources needed for VPC  ",
+   "Parameters":{  
+      "TagValue1":{  
+         "Description":"Description for MyProject: Wordpress,Guacamole,Privoxy",
+         "Type":"String"
+      },
+      "TagValue2":{  
+         "Description":"The Name of Environment",
+         "Type":"String",
+         "AllowedValues":[  
+            "DEV",
+            "QA",
+            "PROD"
+         ]
+      },
+      "VPCName":{  
+         "Description":"The Name of your VPC",
+         "Type":"String"
+      },
+      "CIDR":{  
+         "Description":"The IP address range that you'll use for your VPC",
+         "Type":"String"
+      },
+   "Resources":{  
+      "VPC":{  
+         "Type":"AWS::EC2::VPC",
+         "Properties":{  
+            "CidrBlock":{  
+               "Ref":"CIDR"
+            },
+            "EnableDnsSupport":"true",
+            "EnableDnsHostnames":"true",
+            "InstanceTenancy":"default",
+            "Tags":[  
+               {  
+                  "key":"Name",
+                  "Value":{  
+                     "Ref":"VPCName"
+                  }
+               },
+               {  
+                  "Key":"Project",
+                  "Value":{  
+                     "Ref":"TagValue1"
+                  }
+               },
+               {  
+                  "Key":"Environment",
+                  "Value":{  
+                     "Ref":"TagValue2"
+                  }
+               }
+            ]
+         }
+      },
+   },
+   "Outputs":{  
+      "VPCId":{  
+         "Description":"VPCId of the newly created VPC",
+         "Value":          {  
+            "Ref":"VPC"
+         }
+      },
+   }
+}
+}
