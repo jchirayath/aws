@@ -9,25 +9,25 @@ if [ "$?" = "1" ]; then
 	echo "Cloud Formation Template Validation failed!" 1>&2
 	exit 1
 fi
-exit
+# Get the Active VPC ID from AWS
+VpcID=`aws ec2 describe-vpcs --filter 'Name=tag:Name,Values=us-west-2-vpc' --query 'Vpcs[*].{id:VpcId}' --output text`
+# Get the Active Subnet ID based on Names form AWS
+#SUBNETS=
+#
+echo $VpcID
+#echo $SUBNETS
+#
 # Create the Cloud Formation Stack
 aws cloudformation create-stack \
 --stack-name WordPressPlus-Stack \
 --template-body $CFFile \
 --parameters \
-ParameterKey=VpcID,ParameterValue=us-west-2-vpc \
-ParameterKey=TagValue2,ParameterValue=DEV \
-ParameterKey=VPCName,ParameterValue=us-west-2-vpc \
-ParameterKey=CIDR,ParameterValue=10.0.0.0/16 \
-ParameterKey=PrivateSubnet1AZName,ParameterValue=Private-us-west-1b \
-ParameterKey=PrivateSubnet2AZName,ParameterValue=Private-us-west-1c \
-ParameterKey=PrivateCidrBlock1,ParameterValue=10.0.1.0/24 \
-ParameterKey=PrivateCidrBlock2,ParameterValue=10.0.2.0/24 \
-ParameterKey=PrivateSubnet1AZ,ParameterValue=us-west-1b \
-ParameterKey=PrivateSubnet2AZ,ParameterValue=us-west-1c \
-ParameterKey=PublicSubnet1AZName,ParameterValue=Public-us-west-1b \
-ParameterKey=PublicSubnet2AZName,ParameterValue=Public-us-west-1c \
-ParameterKey=PublicCidrBlock1,ParameterValue=10.0.3.0/24 \
-ParameterKey=PublicCidrBlock2,ParameterValue=10.0.4.0/24 \
-ParameterKey=PublicSubnet1AZ,ParameterValue=us-west-1b \
-ParameterKey=PublicSubnet2AZ,ParameterValue=us-west-1c 
+ParameterKey=VpcId,ParameterValue=$VpcID \
+ParameterKey=Subnets,ParameterValue=\"subnet-07eb9d5f,subnet-39d68c5d\" \
+ParameterKey=KeyName,ParameterValue=azured_id \
+ParameterKey=DBName,ParameterValue=MySQLDB \
+ParameterKey=DBUser,ParameterValue=admin \
+ParameterKey=DBPassword,ParameterValue=MySQL264 \
+ParameterKey=DBAllocatedStorage,ParameterValue=5 \
+ParameterKey=MultiAZDatabase,ParameterValue=false \
+ParameterKey=WebServerCapacity,ParameterValue=1 

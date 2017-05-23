@@ -3,7 +3,7 @@
     "Description": "AWS CloudFormation Sample Template WordPress_Multi_AZ: WordPress is web software you can use to create a beautiful website or blog. This template installs a highly-available, scalable WordPress deployment using a multi-az Amazon RDS database instance for storage. It demonstrates using the AWS CloudFormation bootstrap scripts to deploy WordPress. **WARNING** This template creates an Amazon EC2 instance, an Application Load Balancer and an Amazon RDS database instance. You will be billed for the AWS resources used if you create a stack from this template.",
     "Parameters": {
         "VpcId": {
-            "Type": "String",
+            "Type": "AWS::EC2::VPC::Id",
             "Description": "VpcId of your existing Virtual Private Cloud (VPC)",
             "ConstraintDescription": "must be the VPC Id of an existing Virtual Private Cloud."
         },
@@ -14,13 +14,13 @@
         },
         "KeyName": {
             "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
-            "Type": "String",
+            "Type": "AWS::EC2::KeyPair::KeyName",
             "ConstraintDescription": "must be the name of an existing EC2 KeyPair."
         },
         "InstanceType": {
             "Description": "WebServer EC2 instance type",
             "Type": "String",
-            "Default": "t2.micro",
+            "Default": "t2.small",
             "AllowedValues": [
                 "t1.micro",
                 "t2.nano",
@@ -91,7 +91,7 @@
         "DBClass": {
             "Description": "Database instance class",
             "Type": "String",
-            "Default": "db.t2.micro",
+            "Default": "db.t2.small",
             "AllowedValues": [
                 "db.t1.micro",
                 "db.m1.small",
@@ -943,18 +943,9 @@
                 }
             }
         },
-        "DBSubnetGroup" : {
-          "Type" : "AWS::RDS::DBSubnetGroup",
-          "Properties" : {
-            "DBSubnetGroupDescription" : "DB Subnet description",
-            "SubnetIds" : { "Ref": "Subnets" },
-            "Tags" : [ {"Key" : "String", "Value" : "String"} ]
-	   }
-         },
         "DBSecurityGroup": {
             "Type": "AWS::RDS::DBSecurityGroup",
             "Properties": {
-                "GroupDescription": "database access",
                 "EC2VpcId": {
                     "Ref": "VpcId"
                 },
@@ -962,39 +953,19 @@
                     "EC2SecurityGroupId": {
                         "Ref": "WebServerSecurityGroup"
                     }
+                },
+                "GroupDescription": "database access"
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "f1fb36e0-9800-4b5e-8f94-c6704bbcaf0d"
                 }
             }
         },
-        "VPCSecurityGroup": {
-            "Type": "AWS::EC2::SecurityGroup",
-            "Properties": {
-                "GroupName": "VPCSecurityGroup",
-                "GroupDescription": "RDS VPC access",
-                "VpcId": {
-                    "Ref": "VpcId"
-                },
-                "SecurityGroupIngress": [
-                    {
-                        "IpProtocol": "tcp",
-                        "FromPort": "3306",
-                        "ToPort": "3306"
-                    },
-                    {
-                        "IpProtocol": "tcp",
-                        "FromPort": "22",
-                        "ToPort": "22",
-                        "CidrIp": {
-                            "Ref": "SSHLocation"
-                        }
-                    }
-		]	
-	     }
-	},
         "DBInstance": {
             "Type": "AWS::RDS::DBInstance",
             "Properties": {
-                "VPCSecurityGroups" : [ "VPCSecurityGroup"],
-		"DBName": {
+                "DBName": {
                     "Ref": "DBName"
                 },
                 "Engine": "MySQL",
