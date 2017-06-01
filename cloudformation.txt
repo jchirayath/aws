@@ -18,4 +18,8 @@ git push origin master
 git add *
 git commit -m "Update"
 git push 
+
+# S3 sync
+aws s3 cp s3://jchirayath/ s3 --recursive
+
  

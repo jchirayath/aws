@@ -1,0 +1,18 @@
+{
+    "Comment": "Update record to reflect new IP address of home router",
+    "Changes": [
+        {
+            "Action": "UPSERT",
+            "ResourceRecordSet": {
+                "Name": "mysql.aws.aspl.net.",
+                "Type": "CNAME",
+                "TTL": 300,
+                "ResourceRecords": [
+                    {
+                        "Value": "mysqldb.cf1k5bmcoajd.us-west-1.rds.amazonaws.com:3306"
+                    }
+                ]
+            }
+        }
+    ]
+}

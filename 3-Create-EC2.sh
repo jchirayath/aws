@@ -11,6 +11,7 @@ if [ "$?" = "1" ]; then
 fi
 # Get the Active VPC ID from AWS
 VpcID=`aws ec2 describe-vpcs --filter 'Name=tag:Name,Values=us-west-2-vpc' --query 'Vpcs[*].{id:VpcId}' --output text`
+VpcID="vpc-5f3db23b"
 # Get the Active Subnet ID based on Names form AWS
 #SUBNETS=
 #
@@ -19,7 +20,7 @@ echo $VpcID
 #
 # Create the Cloud Formation Stack
 aws cloudformation create-stack \
---stack-name WordPressPlus-Stack \
+--stack-name WordPressPlus-Stack4444 \
 --template-body $CFFile \
 --parameters \
 ParameterKey=VpcId,ParameterValue=$VpcID \

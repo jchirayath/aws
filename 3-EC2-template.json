@@ -904,9 +904,8 @@
                         "Ref": "WebServerSecurityGroup"
                     }
                 ],
-                "KeyName": {
-                    "Ref": "KeyName"
-                },
+                "KeyName": "azure_id"
+                ,
                 "UserData": {
                     "Fn::Base64": {
                         "Fn::Join": [
@@ -993,7 +992,11 @@
         "DBInstance": {
             "Type": "AWS::RDS::DBInstance",
             "Properties": {
-                "VPCSecurityGroups" : [ "VPCSecurityGroup"],
+                "VPCSecurityGroups" : [
+			  {
+				"Ref": "VPCSecurityGroup"
+			  }
+		],
 		"DBName": {
                     "Ref": "DBName"
                 },
@@ -1017,7 +1020,10 @@
                     {
                         "Ref": "DBSecurityGroup"
                     }
-                ]
+                ],
+                "DBSubnetGroupName": {
+                    "Ref": "DBSubnetGroup"
+                }
             },
             "Metadata": {
                 "AWS::CloudFormation::Designer": {
@@ -1171,3 +1177,4 @@
         }
     }
 }
+

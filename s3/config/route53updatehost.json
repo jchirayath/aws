@@ -1,0 +1,18 @@
+{
+    "Comment": "Update record to reflect new IP address of home router",
+    "Changes": [
+        {
+            "Action": "UPSERT",
+            "ResourceRecordSet": {
+                "Name": "www.aws.aspl.net.",
+                "Type": "A",
+                "TTL": 300,
+                "ResourceRecords": [
+                    {
+                        "Value": "54.193.38.127"
+                    }
+                ]
+            }
+        }
+    ]
+}
