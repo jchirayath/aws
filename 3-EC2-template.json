@@ -589,6 +589,12 @@
                     "Ref": "Subnets"
                 }
             },
+            "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "lb-MyVPC"
+                    }
+            ],
             "Metadata": {
                 "AWS::CloudFormation::Designer": {
                     "id": "91e1a4cb-699f-4774-ae3b-5e6e37326508"
@@ -904,8 +910,9 @@
                         "Ref": "WebServerSecurityGroup"
                     }
                 ],
-                "KeyName": "azure_id"
-                ,
+                "KeyName": {
+                        "Ref": "KeyName"
+                },
                 "UserData": {
                     "Fn::Base64": {
                         "Fn::Join": [

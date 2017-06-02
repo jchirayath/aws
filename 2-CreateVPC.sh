@@ -16,6 +16,7 @@ aws cloudformation create-stack \
 --parameters \
 ParameterKey=TagValue1,ParameterValue=MyProject \
 ParameterKey=TagValue2,ParameterValue=DEV \
+ParameterKey=KeyName,ParameterValue=azure_id \
 ParameterKey=VPCName,ParameterValue=us-west-2-vpc \
 ParameterKey=CIDR,ParameterValue=10.0.0.0/16 \
 ParameterKey=PrivateSubnet1AZName,ParameterValue=Private-us-west-1b \
