@@ -2,6 +2,11 @@
 #
 # Define the Template file 
 CFFile="file://2-VPC-template.json"
+# Define AZ
+#AZ1="us-west-1b"
+#AZ2="us-west-1c"
+AZ1=`aws ec2 describe-availability-zones --output text | awk 'NR==1{print $4}'`
+AZ2=`aws ec2 describe-availability-zones --output text | awk 'NR==2{print $4}'`
 #
 # Test the configuration file
 aws cloudformation validate-template --template-body $CFFile
@@ -11,23 +16,22 @@ if [ "$?" = "1" ]; then
 fi
 # Create the Cloud Formation Stack
 aws cloudformation create-stack \
---stack-name us-west-2-stack \
+--stack-name MyVPC-Stack \
 --template-body $CFFile \
 --parameters \
 ParameterKey=TagValue1,ParameterValue=MyProject \
 ParameterKey=TagValue2,ParameterValue=DEV \
-ParameterKey=KeyName,ParameterValue=azure_id \
-ParameterKey=VPCName,ParameterValue=us-west-2-vpc \
+ParameterKey=VPCName,ParameterValue=MyVPC \
 ParameterKey=CIDR,ParameterValue=10.0.0.0/16 \
-ParameterKey=PrivateSubnet1AZName,ParameterValue=Private-us-west-1b \
-ParameterKey=PrivateSubnet2AZName,ParameterValue=Private-us-west-1c \
+ParameterKey=PrivateSubnet1AZName,ParameterValue=PrivateSubnetAZ1 \
+ParameterKey=PrivateSubnet2AZName,ParameterValue=PrivateSubnetAZ2 \
 ParameterKey=PrivateCidrBlock1,ParameterValue=10.0.1.0/24 \
 ParameterKey=PrivateCidrBlock2,ParameterValue=10.0.2.0/24 \
-ParameterKey=PrivateSubnet1AZ,ParameterValue=us-west-1b \
-ParameterKey=PrivateSubnet2AZ,ParameterValue=us-west-1c \
-ParameterKey=PublicSubnet1AZName,ParameterValue=Public-us-west-1b \
-ParameterKey=PublicSubnet2AZName,ParameterValue=Public-us-west-1c \
+ParameterKey=PrivateSubnet1AZ,ParameterValue=$AZ1 \
+ParameterKey=PrivateSubnet2AZ,ParameterValue=$AZ2 \
+ParameterKey=PublicSubnet1AZName,ParameterValue=PublicSubnetAZ1 \
+ParameterKey=PublicSubnet2AZName,ParameterValue=PublicSubnetAZ2 \
 ParameterKey=PublicCidrBlock1,ParameterValue=10.0.3.0/24 \
 ParameterKey=PublicCidrBlock2,ParameterValue=10.0.4.0/24 \
-ParameterKey=PublicSubnet1AZ,ParameterValue=us-west-1b \
-ParameterKey=PublicSubnet2AZ,ParameterValue=us-west-1c 
+ParameterKey=PublicSubnet1AZ,ParameterValue=$AZ1 \
+ParameterKey=PublicSubnet2AZ,ParameterValue=$AZ2 
