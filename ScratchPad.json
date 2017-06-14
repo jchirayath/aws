@@ -1,0 +1,116 @@
+       		"ApexRecords" : {
+		     "DependsOn":"ApplicationLoadBalancer",
+	         "Type" : "AWS::Route53::RecordSetGroup",
+	         "Properties" : {
+				"HostedZoneId" : {
+                        "Ref": "HostedZone"
+                 },
+				 "RecordSets" : [
+						{
+						"Name" : "",
+						"Type" : "A",
+						"AliasTarget" : {
+							  "HostedZoneId" : { "Ref": "HostedZone" },
+							  "DNSName" : { "Fn::GetAtt" : ["ApplicationLoadBalancer","DNSName"] }
+						 }
+					}
+				]
+				}	
+			},
+
+	
+     
+        "DBInstance": {
+            "Type": "AWS::RDS::DBInstance",
+            "Properties": {
+                "VPCSecurityGroups" : [
+			  {
+				"Ref": "VPCSecurityGroup"
+			  }
+		],
+		"DBName": {
+                    "Ref": "DBName"
+                },
+                "Engine": "MySQL",
+                "MultiAZ": {
+                    "Ref": "MultiAZDatabase"
+                },
+                "MasterUsername": {
+                    "Ref": "DBUser"
+                },
+                "MasterUserPassword": {
+                    "Ref": "DBPassword"
+                },
+                "DBInstanceClass": {
+                    "Ref": "DBClass"
+                },
+                "AllocatedStorage": {
+                    "Ref": "DBAllocatedStorage"
+                },
+                "DBSecurityGroups": [
+                    {
+                        "Ref": "DBSecurityGroup"
+                    }
+                ],
+                "DBSubnetGroupName": {
+                    "Ref": "DBSubnetGroup"
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "c6a2f2e0-8718-4889-ad3e-ab571dcb1e69"
+                }
+            }
+        }
+    },
+    
+            "VPCSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupName": "VPCSecuirtyGroup",
+                "GroupDescription": "MyVPC Security Group",
+                "VpcId": {
+                    "Ref": "VpcId"
+                },
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "443",
+                        "ToPort": "443",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8000",
+                        "ToPort": "8000",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8118",
+                        "ToPort": "8118",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8080",
+                        "ToPort": "8080",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "22",
+                        "ToPort": "22",
+                        "CidrIp": {
+                            "Ref": "SSHLocation"
+                        }
+                    }
+		]	
+	     }
+	},

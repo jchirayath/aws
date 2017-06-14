@@ -1,13 +1,28 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "AWS CloudFormation Sample Template WordPress_Multi_AZ: WordPress is web software you can use to create a beautiful website or blog. This template installs a highly-available, scalable WordPress deployment using a multi-az Amazon RDS database instance for storage. It demonstrates using the AWS CloudFormation bootstrap scripts to deploy WordPress. **WARNING** This template creates an Amazon EC2 instance, an Application Load Balancer and an Amazon RDS database instance. You will be billed for the AWS resources used if you create a stack from this template.",
+    "Description": "Template WordPress_Multi_AZ: WordPress is web software you can use to create a beautiful website or blog. This template installs a highly-available, scalable WordPress deployment using a multi-az Amazon RDS database instance for storage. It demonstrates using the AWS CloudFormation bootstrap scripts to deploy WordPress. **WARNING** This template creates an Amazon EC2 instance, an Application Load Balancer and an Amazon RDS database instance. You will be billed for the AWS resources used if you create a stack from this template.",
     "Parameters": {
         "VpcId": {
             "Type": "String",
             "Description": "VpcId of your existing Virtual Private Cloud (VPC)",
             "ConstraintDescription": "must be the VPC Id of an existing Virtual Private Cloud."
         },
-        "Subnets": {
+        "DefaultVPCSecurityGroup": {
+            "Type": "String",
+            "Description": "Default Security Group of the Virtual Private Cloud (VPC) Created",
+            "ConstraintDescription": "must be the VPC Id of an existing Virtual Private Cloud."
+        },
+         "IAMInstanceProfile": {
+            "Type": "String",
+            "Description": "IAM Role Policy  Launching the EC2 Instances",
+            "ConstraintDescription": "must be a valid policy."
+        },
+        "PrivateSubnets": {
+            "Type": "List<AWS::EC2::Subnet::Id>",
+            "Description": "The list of SubnetIds in your Virtual Private Cloud (VPC)",
+            "ConstraintDescription": "must be a list of at least two existing subnets associated with at least two different availability zones. They should be residing in the selected Virtual Private Cloud."
+        },
+        "PublicSubnets": {
             "Type": "List<AWS::EC2::Subnet::Id>",
             "Description": "The list of SubnetIds in your Virtual Private Cloud (VPC)",
             "ConstraintDescription": "must be a list of at least two existing subnets associated with at least two different availability zones. They should be residing in the selected Virtual Private Cloud."
@@ -586,15 +601,20 @@
             "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
             "Properties": {
                 "Subnets": {
-                    "Ref": "Subnets"
-                }
-            },
+                    "Ref": "PublicSubnets"
+                },
+                "SecurityGroups": [ {"Ref" : "VPCSecurityGroup"} ],
             "Tags": [
                     {
                         "Key": "Name",
-                        "Value": "lb-MyVPC"
+                        "Value": { 
+                                  "Fn::Join": [ "",
+                         [ "lb-", { "Ref": "AWS::StackName" } ]
+                         ]
+                        }
                     }
-            ],
+                    ]
+            },
             "Metadata": {
                 "AWS::CloudFormation::Designer": {
                     "id": "91e1a4cb-699f-4774-ae3b-5e6e37326508"
@@ -658,10 +678,11 @@
                 }
             }
         },
+    
         "WebServerSecurityGroup": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
-                "GroupDescription": "Enable HTTP access via port 80 locked down to the load balancer + SSH access",
+                "GroupDescription": "Enable HTTP access via port 80/443/8080/8000/8118 locked down to the load balancer + SSH access",
                 "SecurityGroupIngress": [
                     {
                         "IpProtocol": "tcp",
@@ -681,10 +702,82 @@
                     },
                     {
                         "IpProtocol": "tcp",
+                        "FromPort": "443",
+                        "ToPort": "443",
+                        "SourceSecurityGroupId": {
+                            "Fn::Select": [
+                                0,
+                                {
+                                    "Fn::GetAtt": [
+                                        "ApplicationLoadBalancer",
+                                        "SecurityGroups"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8000",
+                        "ToPort": "8000",
+                        "SourceSecurityGroupId": {
+                            "Fn::Select": [
+                                0,
+                                {
+                                    "Fn::GetAtt": [
+                                        "ApplicationLoadBalancer",
+                                        "SecurityGroups"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8080",
+                        "ToPort": "8080",
+                        "SourceSecurityGroupId": {
+                            "Fn::Select": [
+                                0,
+                                {
+                                    "Fn::GetAtt": [
+                                        "ApplicationLoadBalancer",
+                                        "SecurityGroups"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8118",
+                        "ToPort": "8118",
+                        "SourceSecurityGroupId": {
+                            "Fn::Select": [
+                                0,
+                                {
+                                    "Fn::GetAtt": [
+                                        "ApplicationLoadBalancer",
+                                        "SecurityGroups"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
                         "FromPort": "22",
                         "ToPort": "22",
-                        "CidrIp": {
-                            "Ref": "SSHLocation"
+                        "SourceSecurityGroupId": {
+                            "Fn::Select": [
+                                0,
+                                {
+                                    "Fn::GetAtt": [
+                                        "ApplicationLoadBalancer",
+                                        "SecurityGroups"
+                                    ]
+                                }
+                            ]
                         }
                     }
                 ],
@@ -702,7 +795,7 @@
             "Type": "AWS::AutoScaling::AutoScalingGroup",
             "Properties": {
                 "VPCZoneIdentifier": {
-                    "Ref": "Subnets"
+                    "Ref": "PublicSubnets"
                 },
                 "LaunchConfigurationName": {
                     "Ref": "LaunchConfig"
@@ -813,6 +906,56 @@
                             }
                         }
                     },
+                    
+                   "install_apps": {
+                        "packages": {
+                            "yum": {
+                                "docker": [],
+                                "nmap": [],
+                                "nginx": [],
+                                "privoxy": []
+                          }
+                        },
+                        "files": {
+                            "/tmp/create-apps-config": {
+                                "content": {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "#!/bin/bash\n",
+                                            "yum -y update\n",
+                                            "# Create User and add to Docker Group\n",
+                                            "adduser jacobc -m  -d /home/jacobc -c \"Jacob Chirayath\"\n",
+										    "cp -pr  /home/ec2-user/.ssh /home/jacobc/.ssh\n",
+										    "chown -R jacobc:jacobc /home/jacobc/.ssh\n",
+											"usermod -aG wheel jacobc\n",
+											"usermod -aG docker jacobc\n",
+											"usermod -aG docker ec2-user\n",
+											"# Install Guacamole\n",
+											"docker run --name some-guacd -d guacamole/guacd\n"
+                                        ]
+                                    ]
+                                },
+                                "mode": "000500",
+                                "owner": "root",
+                                "group": "root"
+                            }
+                        },
+                         "commands": {
+                            "01_configure_apps": {
+                                "command": "/tmp/create-app-config"
+                            }
+                        },
+                        "services": {
+                            "sysvinit": {
+                                "docker": {
+                                    "enabled": "true",
+                                    "ensureRunning": "true"
+                                }
+                            }
+                        }
+                    },
+                    
                     "install_wordpress": {
                         "packages": {
                             "yum": {
@@ -865,7 +1008,7 @@
                             }
                         },
                         "commands": {
-                            "01_configure_wordpress": {
+                            "02_configure_wordpress": {
                                 "command": "/tmp/create-wp-config",
                                 "cwd": "/var/www/html/wordpress"
                             }
@@ -879,6 +1022,7 @@
                             }
                         }
                     }
+             
                 },
                 "AWS::CloudFormation::Designer": {
                     "id": "6774e171-a3e9-48d3-a38d-842932dfa331"
@@ -905,7 +1049,11 @@
                 "InstanceType": {
                     "Ref": "InstanceType"
                 },
+                "IamInstanceProfile" : { "Ref" : "IAMInstanceProfile" },
                 "SecurityGroups": [
+                    {
+                        "Ref": "VPCSecurityGroup"
+                    },
                     {
                         "Ref": "WebServerSecurityGroup"
                     }
@@ -953,14 +1101,14 @@
           "Type" : "AWS::RDS::DBSubnetGroup",
           "Properties" : {
             "DBSubnetGroupDescription" : "DB Subnet description",
-            "SubnetIds" : { "Ref": "Subnets" },
+            "SubnetIds" : { "Ref": "PrivateSubnets" },
             "Tags" : [ {"Key" : "String", "Value" : "String"} ]
 	   }
          },
         "DBSecurityGroup": {
             "Type": "AWS::RDS::DBSecurityGroup",
             "Properties": {
-                "GroupDescription": "database access",
+                "GroupDescription": "RDS database access",
                 "EC2VpcId": {
                     "Ref": "VpcId"
                 },
@@ -975,15 +1123,40 @@
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
                 "GroupName": "VPCSecurityGroup",
-                "GroupDescription": "RDS VPC access",
+                "GroupDescription": "MyVPC Security Group",
                 "VpcId": {
                     "Ref": "VpcId"
                 },
                 "SecurityGroupIngress": [
                     {
                         "IpProtocol": "tcp",
-                        "FromPort": "3306",
-                        "ToPort": "3306"
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "443",
+                        "ToPort": "443",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8000",
+                        "ToPort": "8000",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8118",
+                        "ToPort": "8118",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8080",
+                        "ToPort": "8080",
+                        "CidrIp": "0.0.0.0/0"
                     },
                     {
                         "IpProtocol": "tcp",
@@ -1001,7 +1174,7 @@
             "Properties": {
                 "VPCSecurityGroups" : [
 			  {
-				"Ref": "VPCSecurityGroup"
+				"Ref": "WebServerSecurityGroup"
 			  }
 		],
 		"DBName": {
@@ -1037,8 +1210,63 @@
                     "id": "c6a2f2e0-8718-4889-ad3e-ab571dcb1e69"
                 }
             }
-        }
+        },
+        "HostedZone": {
+            "Type": "AWS::Route53::HostedZone",
+            "Properties": {
+                "Name": "aws.aspl.net.",
+                "HostedZoneConfig": {
+                    "Comment": "Hosted SubDomain for aspl.net"
+                }
+            },			
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "3d67df20-586f-46da-a967-48f94bd616b5"
+                }
+            }
+        },
+ 	"MySQLDNSRecords" : {
+		      "DependsOn":"DBInstance",
+	         "Type" : "AWS::Route53::RecordSet",
+	         "Properties" : {
+				"HostedZoneId" : {
+                        "Ref": "HostedZone"
+                    },
+				"Name" : "mysql.aws.aspl.net.",
+				"Type" : "CNAME",
+				"TTL" : "300",
+				"ResourceRecords" : [ 
+				     {
+						"Fn::GetAtt": [
+						"DBInstance",
+                        "Endpoint.Address"
+                       ] 
+				     }
+				]
+			  }
+	    },
+	    "ELBDNSRecords" : {
+		      "DependsOn":"ApplicationLoadBalancer",
+	         "Type" : "AWS::Route53::RecordSet",
+	         "Properties" : {
+				"HostedZoneId" : {
+                        "Ref": "HostedZone"
+                    },
+				"Name" : "www.aws.aspl.net.",
+				"Type" : "CNAME",
+				"TTL" : "300",
+				"ResourceRecords" : [ 
+				     {
+						"Fn::GetAtt": [
+						"ApplicationLoadBalancer",
+                        "DNSName"
+                       ] 
+				     }
+				]
+			  }
+	    }
     },
+
     "Outputs": {
         "WebsiteURL": {
             "Value": {
@@ -1057,6 +1285,24 @@
                 ]
             },
             "Description": "WordPress Website"
+        },
+        "DatabaseName": {
+            "Value": {
+                "Fn::Join": [
+                    "",
+                    [
+                        "DBName:",
+                        {
+                            "Fn::GetAtt": [
+                                "DBInstance",
+                                "Endpoint.Address"
+                            ]
+                        },
+                        ":3306"
+                    ]
+                ]
+            },
+            "Description": "MySQL RDS Database Name:Port"
         }
     },
     "Metadata": {

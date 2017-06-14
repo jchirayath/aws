@@ -1,10 +1,10 @@
 # Template which will create VPC, 2Public Subnet, 2Private Subnet and NAT Gateway.
 {  
    "AWSTemplateFormatVersion":"2010-09-09",
-   "Description":"Create VPC, 2 Private, 2 Public Subnets, NAT Gateway & InternetGateway",
+   "Description":"This Template will create VPC, Subnet and resources needed for VPC  ",
    "Parameters":{  
       "TagValue1":{  
-         "Description":"MyVPC with 2 Private, 2 Public Subnets, NAT Gateway & InternetGateway",
+         "Description":"Description for MyProject: Wordpress,Guacamole,Privoxy",
          "Type":"String"
       },
       "TagValue2":{  
@@ -105,8 +105,7 @@
             ]
          }
       },
-         
-   "PublicSubnet1":{  
+      "PublicSubnet1":{  
          "Type":"AWS::EC2::Subnet",
          "Properties":{  
             "VpcId":{  
@@ -182,7 +181,7 @@
             "Tags":[  
                {  
                   "Key":"Name",
-                  "Value":"igw-PubicSubnetAZ1" 
+                  "Value":"igw-us-west1b" 
                },
                {  
                   "Key":"Project",
