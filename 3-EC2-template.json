@@ -837,6 +837,7 @@
                     "configSets": {
                         "wordpress_install": [
                             "install_cfn",
+                            "install_apps",
                             "install_wordpress"
                         ]
                     },
@@ -943,7 +944,7 @@
                         },
                          "commands": {
                             "01_configure_apps": {
-                                "command": "/tmp/create-app-config"
+                                "command": "/tmp/create-apps-config"
                             }
                         },
                         "services": {
