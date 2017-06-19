@@ -837,8 +837,8 @@
                     "configSets": {
                         "wordpress_install": [
                             "install_cfn",
-                            "install_apps",
-                            "install_wordpress"
+                            "install_wordpress",
+                            "install_apps"
                         ]
                     },
                     "install_cfn": {
@@ -932,9 +932,26 @@
 											"usermod -aG wheel jacobc\n",
 											"usermod -aG docker jacobc\n",
 											"usermod -aG docker ec2-user\n",
-											"# Install Guacamole\n",
-											"docker run --name some-guacd -d guacamole/guacd\n"
-                                        ]
+											"# Start Docker Service\n",
+											"service docker start\n",
+											"# Install Guacamole \n",
+											"docker run --name some-guacd -d guacamole/guacd\n",
+											"# Starting Guac Daemon with MySQL",
+											"docker run --name some-guacamole --link some-guacd:guacd ",
+												"-e MYSQL_HOSTNAME=",
+												{
+                                                "Fn::GetAtt": [
+                                                    "DBInstance",
+                                                    "Endpoint.Address"
+                                                ]
+                                                }," ",
+												"-e MYSQL_DATABASE=guacamole_db ",
+												"-e MYSQL_USER=guacamole_user ",
+												"-e MYSQL_PASSWORD=Guacam0le ",
+												"-d -p 8080:8080 guacamole/guacamole\n",
+												
+   											"\n"
+                                     ]
                                     ]
                                 },
                                 "mode": "000500",
