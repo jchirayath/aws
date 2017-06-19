@@ -7,7 +7,7 @@ AZ1="us-west-1b"
 AZ2="us-west-1c"
 # Define SSH Key
 KeyID="azure_id"
-IAMInstanceProfile="ec2s3RDSroute53FullAccess"
+IAMInstanceProfile="ec2LaunchGroupRole"
 #
 # Test the configuration file
 aws cloudformation validate-template --template-body $CFFile
