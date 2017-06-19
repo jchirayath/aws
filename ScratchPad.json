@@ -1,3 +1,35 @@
+                                            "#!/bin/bash\n",
+                                            "yum -y update\n",
+                                            "# Create User and add to Docker Group\n",
+                                            "adduser jacobc -m  -d /home/jacobc -c \"Jacob Chirayath\"\n",
+										    "cp -pr  /home/ec2-user/.ssh /home/jacobc/.ssh\n",
+										    "chown -R jacobc:jacobc /home/jacobc/.ssh\n",
+											"usermod -aG wheel jacobc\n",
+											"usermod -aG docker jacobc\n",
+											"usermod -aG docker ec2-user\n",
+											"# Install Guacamole\n",
+											"docker run --name some-guacd -d guacamole/guacd\n"
+											
+											"# Check if MySQL DB Exists\n",
+											"CheckDB=`mysqlshow  -h $MyDB -uadmin -pMySQL264 | grep guacamole_d ` \n",
+											"if [ $? == 1 ]; then\n",
+												"# Create the DB\n",
+												"echo \“Creating the Guacamole MySQL DB Instance\”\n",
+												"docker run --rm guacamole/guacamole /opt/guacamole/bin/initdb.sh --mysql > initdb.sql\n",
+												"# Get DataBase config file\n",
+												"aws s3 cp s3://jchirayath/config/mysqlCreateGuacUser.sql mysqlCreateGuacUser.sql\n",
+												"# Execute the DB Connections\n",
+												"mysql -h $MyDB -uadmin -pMySQL264 < mysqlCreateGuacUser.sql\n",
+												"mysql -h $MyDB -uadmin -pMySQL264 guacamole_db < initdb.sql\n",
+											"else\n",
+												"echo “DB Exists”\n",
+											"fi\n",
+
+
+
+
+
+
        		"ApexRecords" : {
 		     "DependsOn":"ApplicationLoadBalancer",
 	         "Type" : "AWS::Route53::RecordSetGroup",
@@ -17,6 +49,15 @@
 				]
 				}	
 			},
+
+	
+	
+	                       "users" : {
+							"myUser" : {
+								"groups" : ["wheel", "docker"],
+								"homeDir" : "/home/jacobc"
+							}
+						},
 
 	
      
