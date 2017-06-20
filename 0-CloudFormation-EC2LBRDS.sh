@@ -31,6 +31,8 @@ echo "Creating VPC and more .... "
 read -p "Do you wish to continue?"
 if [ "$REPLY" = "y" ]; then
   sh 2-Create-VPC.sh
+  echo "Waiting 3 minutes for he above to complete"
+  sleep 3m
 fi
 
 # Create the EC2 Instances with LB & RDS
