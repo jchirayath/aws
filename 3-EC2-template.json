@@ -1396,7 +1396,6 @@
                 "Fn::Join": [
                     "",
                     [
-                        "DBName:",
                         {
                             "Fn::GetAtt": [
                                 "DBInstance",
