@@ -794,6 +794,13 @@
         "WebServerGroup": {
             "Type": "AWS::AutoScaling::AutoScalingGroup",
             "Properties": {
+				"Tags":[  
+				 	{
+				     "Key" : "Name",
+         			 "Value" : "ec2LaunchAutoCreated",
+                     "PropagateAtLaunch" : "true"
+                }
+				],
                 "VPCZoneIdentifier": {
                     "Ref": "PublicSubnets"
                 },
@@ -912,6 +919,7 @@
                         "packages": {
                             "yum": {
                                 "docker": [],
+                                "amazon-ssm-agent": [],
                                 "nmap": [],
                                 "nginx": [],
                                 "privoxy": []
@@ -946,15 +954,16 @@
 											"docker run --name some-guacd -d guacamole/guacd\n",
 											"# Starting Guac Daemon with MySQL\n",
 											"docker run --name some-guacamole --link some-guacd:guacd ",
-												"-e MYSQL_HOSTNAME=$MyDB",
+												"-e MYSQL_HOSTNAME=$MyDB"," ",
 												"-e MYSQL_DATABASE=guacamole_db ",
 												"-e MYSQL_USER=guacamole_user ",
-												"-e MYSQL_PASSWORD=Guacam0le \n",
+												"-e MYSQL_PASSWORD=Guacam0le ",
+												"-d -p 8080:8080 guacamole/guacamole\n",
 											"# Check if MySQL DB Exists\n",
-											"CheckDB=`mysqlshow  -h $MyDB -uadmin -pMySQL264 | grep guacamole_d ` \n",
+											"CheckDB=`mysqlshow  -h $MyDB -uadmin -pMySQL264 | grep guacamole_d`\n",
 											"if [ $? == 1 ]; then\n",
 												"# Create the DB\n",
-												"echo Creating the Guacamole MySQL DB Instance \n",
+												"#Creating the Guacamole MySQL DB Instance \n",
 												"docker run --rm guacamole/guacamole /opt/guacamole/bin/initdb.sh --mysql > initdb.sql\n",
 												"# Get DataBase config file\n",
 												"aws s3 cp s3://jchirayath/config/mysqlCreateGuacUser.sql mysqlCreateGuacUser.sql\n",
@@ -962,7 +971,7 @@
 												"mysql -h $MyDB -uadmin -pMySQL264 < mysqlCreateGuacUser.sql\n",
 												"mysql -h $MyDB -uadmin -pMySQL264 guacamole_db < initdb.sql\n",
 											"else\n",
-												"echo “DB Exists”\n",
+												"echo DB Exists !!\n",
 											"fi\n",
 											"# Fix Guacamole Tomcat Configuration\n",
 											"aws s3 cp s3://jchirayath/config/tomcat-users.xml tomcat-users.xml\n",
@@ -983,11 +992,16 @@
 											"sh -c 'echo \"<?php phpinfo(); ?>\" > /var/www/html/phpinfo.php'\n",
 											"# Fix SSH Port 443\n",
 											"cat << EOF >> /etc/ssh/sshd_config\n",
+											"\n",
 											"Port 22\n",
 											"Port 443\n",
 												"EOF\n",
-												"sudo sshd restart\n",
-
+											"# Restart Services\n",
+											"service httpd restart\n",
+											"service nginx restart\n",
+											"service privoxy restart\n",
+											"service sshd restart\n",
+											"start amazon-ssm-agent\n",											
 									"\n"
                                      ]
                                     ]
@@ -1005,14 +1019,6 @@
                         "services": {
                             "sysvinit": {
                                 "docker": {
-                                    "enabled": "true",
-                                    "ensureRunning": "true"
-                                },
-                                "nginx": {
-                                    "enabled": "true",
-                                    "ensureRunning": "true"
-                                },
-                                "privoxy": {
                                     "enabled": "true",
                                     "ensureRunning": "true"
                                 }
@@ -1333,6 +1339,41 @@
 
     "Outputs": {
         "WebsiteURL": {
+            "Value": {
+                "Fn::Join": [
+                    "",
+                    [
+                        "http://",
+                        {
+                            "Fn::GetAtt": [
+                                "ApplicationLoadBalancer",
+                                "DNSName"
+                            ]
+                        }
+                    ]
+                ]
+            },
+            "Description": "NGINX Top level Website"
+        },
+        "GuacamoleURL": {
+            "Value": {
+                "Fn::Join": [
+                    "",
+                    [
+                        "http://",
+                        {
+                            "Fn::GetAtt": [
+                                "ApplicationLoadBalancer",
+                                "DNSName"
+                            ]
+                        },
+                        "/guacamole"
+                    ]
+                ]
+            },
+            "Description": "Guacamole Website"
+        },
+        "WordpressURL": {
             "Value": {
                 "Fn::Join": [
                     "",
