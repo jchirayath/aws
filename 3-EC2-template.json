@@ -978,7 +978,7 @@
 											"docker cp tomcat-users.xml some-guacamole:/usr/local/tomcat/conf/tomcat-users.xml\n",
 											"docker restart some-guacamole\n",
 											"# Copy all the configuration Files needed\n",
-											"aws s3 cp s3://jchirayath/config/httpd.conf /etc/httpd/conf/httpd.conf\n",
+											"aws s3 cp åconfig/httpd.conf /etc/httpd/conf/httpd.conf\n",
 											"aws s3 cp s3://jchirayath/config/nginx.conf /etc/nginx/nginx.conf\n",
 											"aws s3 cp s3://jchirayath/config/usr-share-nginx-html-index.html  /usr/share/nginx/html/index.html\n",
 											"aws s3 cp s3://jchirayath/config/var-www-html-index.html  /var/www/html/index.html\n",
