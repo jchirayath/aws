@@ -1,0 +1,55 @@
+        "HostedZone": {
+            "Type": "AWS::Route53::HostedZone",
+            "Properties": {
+                "Name": "aws.aspl.net.",
+                "HostedZoneConfig": {
+                    "Comment": "Hosted SubDomain for aspl.net"
+                }
+            },			
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "3d67df20-586f-46da-a967-48f94bd616b5"
+                }
+            }
+        },
+ 	"MySQLDNSRecords" : {
+		      "DependsOn":"DBInstance",
+	         "Type" : "AWS::Route53::RecordSet",
+	         "Properties" : {
+				"HostedZoneId" : {
+                        "Ref": "HostedZone"
+                    },
+				"Name" : "mysql.aws.aspl.net.",
+				"Type" : "CNAME",
+				"TTL" : "300",
+				"ResourceRecords" : [ 
+				     {
+						"Fn::GetAtt": [
+						"DBInstance",
+                        "Endpoint.Address"
+                       ] 
+				     }
+				]
+			  }
+	    },
+	    "ELBDNSRecords" : {
+		      "DependsOn":"ApplicationLoadBalancer",
+	         "Type" : "AWS::Route53::RecordSet",
+	         "Properties" : {
+				"HostedZoneId" : {
+                        "Ref": "HostedZone"
+                    },
+				"Name" : "www.aws.aspl.net.",
+				"Type" : "CNAME",
+				"TTL" : "300",
+				"ResourceRecords" : [ 
+				     {
+						"Fn::GetAtt": [
+						"WebServerGroup",
+                        "DNSName"
+                       ] 
+				     }
+				]
+			  }
+	    }
+    },
