@@ -2,8 +2,9 @@
 #
 # Define the Template file 
 RoleName="ec2LaunchGroupRole"
-RolePolicy="file://10-RoleNamePolicy.json"
 RoleDesc="RolewithEC2S3RDSandRoute53Access"
+RolePolicy="file://10-RoleNamePolicy.json"
+CustomPolicy="file://10-CustomPolicy.json"
 #
 # Create the Role
 aws iam create-role --role-name $RoleName --assume-role-policy-document $RolePolicy --description $RoleDesc
@@ -12,7 +13,7 @@ aws iam create-instance-profile --instance-profile-name $RoleName
 # Now we have to attach the Instance-profile to the Role
 aws iam add-role-to-instance-profile --role-name $RoleName --instance-profile-name $RoleName
 # Attach a custom policy to that role
-aws iam put-role-policy --role-name $RoleName --policy-name CustomPolicy --policy-document $RolePolicy
+aws iam put-role-policy --role-name $RoleName --policy-name CustomPolicy --policy-document $CustomPolicy
 # Attach the standard AWS policies
 aws iam attach-role-policy \
 	--policy-arn arn:aws:iam::aws:policy/AmazonRDSFullAccess \

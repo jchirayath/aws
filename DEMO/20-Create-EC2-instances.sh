@@ -6,7 +6,7 @@ IAMInstanceProfile="ec2LaunchGroupRole"
 
 # Assuming the VPC is Already Defined we need to get the VPC information
 # Ask ADMIN for the VPC Name that is being used for DEMO
-VpcName="VPC-Lab-10.10.0.0"
+VpcName="VPC-Lab-10.11.0.0"
 
 # Define the Template file 
 CFFile="file://20-Create-EC2-instances.json"
@@ -64,7 +64,7 @@ else
 	ParameterKey=KeyName,ParameterValue=$KeyID \
 	ParameterKey=DBName,ParameterValue=MySQLDB \
 	ParameterKey=DBUser,ParameterValue=admin \
-	ParameterKey=DBPassword,ParameterValue=MySQL264 \
+	ParameterKey=DBPassword,ParameterValue=MySQL1234 \
 	ParameterKey=DBAllocatedStorage,ParameterValue=5 \
 	ParameterKey=MultiAZDatabase,ParameterValue=false 
 fi
