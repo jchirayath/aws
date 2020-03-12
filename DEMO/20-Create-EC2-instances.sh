@@ -1,7 +1,7 @@
 # Create Stack for DEMO Platform
 
 # Define SSH Key
-KeyID="azure_id"
+KeyID="jacob_azure_id"
 IAMInstanceProfile="ec2LaunchGroupRole"
 
 # Assuming the VPC is Already Defined we need to get the VPC information
@@ -54,7 +54,7 @@ else
 	echo "Creating the Stack ....... "
 	# Create the Cloud Formation Stack
 	aws cloudformation create-stack \
-	--stack-name EDP-EC2-Stack \
+	--stack-name EDP-EC2-Stack2 \
 	--template-body $CFFile \
 	--parameters \
 	ParameterKey=VpcId,ParameterValue=$VpcID \
