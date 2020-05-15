@@ -3,7 +3,7 @@
 # Define the Template file
 CFFile="file://Create_VPC.yaml"
 StackName="DataWarehouse-VPC"
-Enironment="DEV"
+Environment="DEV"
 
 # Region
 # Region has already been selected at the aws cli configuraion Selection
