@@ -76,7 +76,7 @@ Resources:
         Ref: VPC
       CidrBlock:
         Ref: PublicCidrBlock1
-      MapPublicIpOnLaunch: 'true'
+      MapPublicIpOnLaunch: 'false'
       AvailabilityZone:
         Ref: PublicSubnet1AZ
       Tags:
